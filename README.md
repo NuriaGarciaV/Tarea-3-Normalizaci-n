@@ -140,6 +140,38 @@ def is_superkey(attributes: set[Attribute], heading: set[Attribute], functional_
     return closure(attributes, functional_dependencies) >= heading
 ```
 
+### Ejemplos de uso
+
+```python
+from components import Attribute, FunctionalDependency
+from algorithms import is_superkey
+
+# Atributos
+A = Attribute("A")
+B = Attribute("B")
+C = Attribute("C")
+
+# Dependencias funcionales
+fd1 = FunctionalDependency(lhs={A}, rhs={B})
+fd2 = FunctionalDependency(lhs={B}, rhs={C})
+
+# Encabezado de la relación
+heading = {A, B, C}
+
+# Conjunto candidato 1
+attributes = {A}
+fds = {fd1, fd2}
+print(is_superkey(attributes, heading, fds))  # Esperado: True
+
+# Conjunto candidato 2
+attributes = {B}
+print(is_superkey(attributes, heading, fds))  # Esperado: False
+
+# Conjunto candidato 3
+attributes = {A, B}
+print(is_superkey(attributes, heading, fds))  # Esperado: True
+```
+
 
 
 
