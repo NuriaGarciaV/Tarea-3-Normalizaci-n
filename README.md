@@ -59,6 +59,48 @@ mvd3 = MultivaluedDependency("{A} ->-> {B}")
 print(mvd3.is_trivial({Attribute("A"), Attribute("B"), Attribute("C"), Attribute("D")}))  # Resultado esperado: False
 ```
 
+## Función `closure`
+
+### Supuestos
+
+- Se trabaja con objetos `Attribute` como elementos del conjunto de atributos.
+- Las dependencias funcionales son objetos del tipo `FunctionalDependency`.
+- Cada objeto `FunctionalDependency` tiene:
+  - `.determinant`: conjunto de atributos en el lado izquierdo (X).
+  - `.dependant`: conjunto de atributos en el lado derecho (Y).
+- Se asume que todos los atributos involucrados en las dependencias pertenecen al esquema relacional.
+
+---
+
+### Ejemplos de uso
+
+```python
+from components import Attribute, FunctionalDependency
+from algorithms import closure
+
+# Atributos
+A = Attribute("A")
+B = Attribute("B")
+C = Attribute("C")
+D = Attribute("D")
+
+# Conjunto inicial de atributos
+attrs = {A}
+
+# Conjunto de dependencias funcionales
+fds = [
+    FunctionalDependency("{A} -> {B}"),
+    FunctionalDependency("{B} -> {C}"),
+    FunctionalDependency("{C} -> {D}")
+]
+```
+
+### Calcular cierre
+```python
+result = closure(attrs, fds)
+print({attr.name for attr in result})  # Resultado esperado: {'A', 'B', 'C', 'D'}
+```
+
 
 
 
