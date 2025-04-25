@@ -172,6 +172,120 @@ attributes = {A, B}
 print(is_superkey(attributes, heading, fds))  # Esperado: True
 ```
 
+## Función `closure`
+
+### Supuestos
+
+- Se trabaja con objetos `Attribute` como elementos del conjunto de atributos.
+- Las dependencias funcionales son objetos del tipo `FunctionalDependency`.
+- Cada objeto `FunctionalDependency` tiene:
+  - `.determinant`: conjunto de atributos en el lado izquierdo (X).
+  - `.dependant`: conjunto de atributos en el lado derecho (Y).
+- Se asume que todos los atributos involucrados en las dependencias pertenecen al esquema relacional.
+
+---
+
+### Implementacion
+```python
+def closure(attributes: set[Attribute], functional_dependencies: set[FunctionalDependency]) -> set[Attribute]:
+    result = set(attributes)
+    changed = True
+
+    while changed:
+        changed = False
+        for fd in functional_dependencies:
+            if fd.lhs.issubset(result) and not fd.rhs.issubset(result):
+                result.update(fd.rhs)
+                changed = True
+    return result
+```
+
+### Ejemplos de uso
+
+```python
+from components import Attribute, FunctionalDependency
+from algorithms import closure
+
+# Atributos
+A = Attribute("A")
+B = Attribute("B")
+C = Attribute("C")
+D = Attribute("D")
+
+# Conjunto inicial de atributos
+attrs = {A}
+
+# Conjunto de dependencias funcionales
+fds = [
+    FunctionalDependency("{A} -> {B}"),
+    FunctionalDependency("{B} -> {C}"),
+    FunctionalDependency("{C} -> {D}")
+]
+```
+
+## Función `is_key`
+
+### Supuestos
+
+- `attributes` y `heading` son conjuntos de objetos `Attribute`.
+- `functional_dependencies` es un conjunto de objetos `FunctionalDependency`.
+- Se utiliza la función `closure` para calcular el cierre de un conjunto de atributos.
+- Se asume que ya existe la función `is_superkey`.
+
+---
+
+### Implementacion
+```python
+def is_key(attributes: set[Attribute], heading: set[Attribute], functional_dependencies: set[FunctionalDependency]) -> bool:
+    """
+    Verifica si un conjunto de atributos es una clave candidata.
+
+    Una clave candidata es una superclave mínima, es decir, ningún subconjunto
+    propio de 'attributes' debe ser una superclave.
+
+    Args:
+        attributes (set[Attribute]): Conjunto de atributos candidatos.
+        heading (set[Attribute]): Conjunto de todos los atributos de la relación.
+        functional_dependencies (set[FunctionalDependency]): Dependencias funcionales conocidas.
+
+    Returns:
+        bool: True si 'attributes' es superclave y ningún subconjunto propio lo es; False en caso contrario.
+    """
+    if not is_superkey(attributes, heading, functional_dependencies):
+        return False
+
+    # Verificamos si existe un subconjunto propio que también sea superclave
+    for attr in attributes:
+        subset = attributes - {attr}
+        if is_superkey(subset, heading, functional_dependencies):
+            return False
+
+    return True
+```
+
+### Ejemplos de uso
+
+```python
+from components import Attribute, FunctionalDependency
+from algorithms import is_key
+
+A = Attribute("A")
+B = Attribute("B")
+C = Attribute("C")
+
+fd1 = FunctionalDependency(lhs={A}, rhs={B})
+fd2 = FunctionalDependency(lhs={B}, rhs={C})
+
+heading = {A, B, C}
+
+# A determina a B y B a C, por lo tanto A determina todo => superclave
+# A no tiene subconjuntos propios, por lo tanto también es clave candidata
+print(is_key({A}, heading, {fd1, fd2}))  # Esperado: True
+
+# A y B también determinan todo, pero A sola ya lo hace, así que no es clave mínima
+print(is_key({A, B}, heading, {fd1, fd2}))  # Esperado: False
+```
+
 
 
 
