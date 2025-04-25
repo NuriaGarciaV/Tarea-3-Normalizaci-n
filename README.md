@@ -72,6 +72,21 @@ print(mvd3.is_trivial({Attribute("A"), Attribute("B"), Attribute("C"), Attribute
 
 ---
 
+### Implementacion
+```python
+def closure(attributes: set[Attribute], functional_dependencies: set[FunctionalDependency]) -> set[Attribute]:
+    result = set(attributes)
+    changed = True
+
+    while changed:
+        changed = False
+        for fd in functional_dependencies:
+            if fd.lhs.issubset(result) and not fd.rhs.issubset(result):
+                result.update(fd.rhs)
+                changed = True
+    return result
+```
+
 ### Ejemplos de uso
 
 ```python
@@ -95,10 +110,34 @@ fds = [
 ]
 ```
 
-### Calcular cierre
+## Función `is_superkey`
+
+### Supuestos
+
+- `attributes` y `heading` son conjuntos de objetos `Attribute`, que deben ser hashables y comparables (por ejemplo, comparables por nombre).
+- `functional_dependencies` es un conjunto de objetos `FunctionalDependency`, cada uno con:
+  - `lhs`: conjunto de atributos en el lado izquierdo.
+  - `rhs`: conjunto de atributos en el lado derecho.
+- Se asume que existe una función `closure(attributes, functional_dependencies)` que calcula correctamente el cierre de los atributos.
+- El resultado será `True` si el cierre de `attributes` incluye todos los atributos del `heading`, y `False` en caso contrario.
+
+---
+
+### Implementacion
 ```python
-result = closure(attrs, fds)
-print({attr.name for attr in result})  # Resultado esperado: {'A', 'B', 'C', 'D'}
+def is_superkey(attributes: set[Attribute], heading: set[Attribute], functional_dependencies: set[FunctionalDependency]) -> bool:
+    """
+    Verifica si un conjunto de atributos es una superclave, es decir, si su cierre contiene todo el encabezado.
+
+    Parámetros:
+    - attributes (set[Attribute]): Conjunto de atributos candidatos a superclave.
+    - heading (set[Attribute]): Conjunto de todos los atributos de la relación.
+    - functional_dependencies (set[FunctionalDependency]): Conjunto de dependencias funcionales.
+
+    Resultado esperado:
+    - bool: `True` si `attributes` es una superclave, `False` en caso contrario.
+    """
+    return closure(attributes, functional_dependencies) >= heading
 ```
 
 
