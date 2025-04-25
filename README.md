@@ -172,57 +172,6 @@ attributes = {A, B}
 print(is_superkey(attributes, heading, fds))  # Esperado: True
 ```
 
-## Función `closure`
-
-### Supuestos
-
-- Se trabaja con objetos `Attribute` como elementos del conjunto de atributos.
-- Las dependencias funcionales son objetos del tipo `FunctionalDependency`.
-- Cada objeto `FunctionalDependency` tiene:
-  - `.determinant`: conjunto de atributos en el lado izquierdo (X).
-  - `.dependant`: conjunto de atributos en el lado derecho (Y).
-- Se asume que todos los atributos involucrados en las dependencias pertenecen al esquema relacional.
-
----
-
-### Implementacion
-```python
-def closure(attributes: set[Attribute], functional_dependencies: set[FunctionalDependency]) -> set[Attribute]:
-    result = set(attributes)
-    changed = True
-
-    while changed:
-        changed = False
-        for fd in functional_dependencies:
-            if fd.lhs.issubset(result) and not fd.rhs.issubset(result):
-                result.update(fd.rhs)
-                changed = True
-    return result
-```
-
-### Ejemplos de uso
-
-```python
-from components import Attribute, FunctionalDependency
-from algorithms import closure
-
-# Atributos
-A = Attribute("A")
-B = Attribute("B")
-C = Attribute("C")
-D = Attribute("D")
-
-# Conjunto inicial de atributos
-attrs = {A}
-
-# Conjunto de dependencias funcionales
-fds = [
-    FunctionalDependency("{A} -> {B}"),
-    FunctionalDependency("{B} -> {C}"),
-    FunctionalDependency("{C} -> {D}")
-]
-```
-
 ## Función `is_key`
 
 ### Supuestos
