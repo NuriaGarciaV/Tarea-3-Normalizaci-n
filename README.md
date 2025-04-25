@@ -354,6 +354,88 @@ relvar2 = Relvar(
 print(is_relvar_in_bcnf(relvar2))  # Esperado: True
 ```
 
+## Función `is_relvar_in_4nf`
+
+### Supuestos
+
+- `relvar` es un objeto que representa una relación con:
+- `heading`: conjunto de objetos `Attribute`.
+- `functional_dependencies`: conjunto de objetos `FunctionalDependency`.
+- `multivalued_dependencies`: conjunto de objetos `MultivaluedDependency`.
+- `FunctionalDependency` y `MultivaluedDependency` tienen:
+- `lhs`: conjunto de atributos en el lado izquierdo.
+- `rhs`: conjunto de atributos en el lado derecho.
+- La función `is_superkey(X, heading, fds)` determina si `X` es superclave **con base en dependencias funcionales**.
+- Se consideran **dependencias no triviales**, es decir:
+- Para FD: \( X \to Y \) donde \( Y \nsubseteq X \)
+- Para MVD: \( X \twoheadrightarrow Y \) donde \( Y \nsubsete
+
+---
+
+### Implementacion
+```python
+def is_relvar_in_4nf(relvar) -> bool:
+    """
+    Verifica si una relación (relvar) está en Cuarta Forma Normal (4NF).
+
+    Una relación está en 4NF si, para toda dependencia funcional o multivaluada no trivial X →→ Y,
+    X es una superclave.
+
+    Args:
+        relvar: Objeto que representa una relación, con propiedades:
+            - heading: conjunto de atributos.
+            - functional_dependencies: conjunto de dependencias funcionales.
+            - multivalued_dependencies: conjunto de dependencias multivaluadas.
+
+    Returns:
+        bool: True si la relación está en 4NF, False en caso contrario.
+    """
+    heading = relvar.heading
+    fds = relvar.functional_dependencies
+    mvds = relvar.multivalued_dependencies
+
+    # Verificamos todas las dependencias funcionales no triviales
+    for fd in fds:
+        if not fd.rhs.issubset(fd.lhs):  # Dependencia funcional no trivial
+            if not is_superkey(fd.lhs, heading, fds):
+                return False
+
+    # Verificamos todas las dependencias multivaluadas no triviales
+    for mvd in mvds:
+        if not mvd.rhs.issubset(mvd.lhs) and (mvd.lhs | mvd.rhs) != heading:
+            if not is_superkey(mvd.lhs, heading, fds):
+                return False
+
+    return True
+```
+
+### Ejemplos de uso
+
+```python
+from components import Attribute, FunctionalDependency, MultivaluedDependency, Relvar
+from algorithms import is_relvar_in_4nf
+
+A = Attribute("A")
+B = Attribute("B")
+C = Attribute("C")
+
+fd = FunctionalDependency(lhs={A}, rhs={B})
+mvd = MultivaluedDependency(lhs={A}, rhs={C})
+
+heading = {A, B, C}
+
+relvar = Relvar(
+    heading=heading,
+    functional_dependencies={fd},
+    multivalued_dependencies={mvd}
+)
+
+# A no es superclave, pero determina a B y multivaluadamente a C → no está en 4NF
+print(is_relvar_in_4nf(relvar))  # Esperado: False
+
+# Si A fuera superclave o no existieran dependencias multivaluadas → estaría en 4NF
+```
+
 
 
 
