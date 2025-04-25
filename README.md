@@ -1,14 +1,14 @@
 # Tarea-3-Normalizacion
 
-# FunctionalDependency - Método `is_trivial`
+## FunctionalDependency - Método `is_trivial`
 
-## Supuestos
+### Supuestos
 
 Una **dependencia funcional** `{A1, A2, ..., An} -> {B1, B2, ..., Bm}` se considera **trivial** si **todos los atributos del lado derecho ** están incluidos en el lado izquierdo. Es decir, la dependencia es trivial si:
 {B1, ..., Bm} ⊆ {A1, ..., An}
 
 
-## Ejemplos de uso
+### Ejemplos de uso
 
 ```python
 from components import FunctionalDependency
