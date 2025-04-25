@@ -286,6 +286,74 @@ print(is_key({A}, heading, {fd1, fd2}))  # Esperado: True
 print(is_key({A, B}, heading, {fd1, fd2}))  # Esperado: False
 ```
 
+## Función `is_relvar_in_bcnf`
+
+### Supuestos
+
+- `relvar` es un objeto que representa una relación con las siguientes propiedades:
+- `heading`: un conjunto de objetos `Attribute` (atributos de la relación).
+- `functional_dependencies`: un conjunto de objetos `FunctionalDependency`, cada uno con `lhs` y `rhs`.
+- Las dependencias multivaluadas existen pero **no afectan** directamente la verificación de BCNF, ya que BCNF solo se basa en dependencias funcionales.
+- Se utiliza la función `is_superkey(lhs, heading, fds)` para verificar si un conjunto de atributos es superclave.
+- Solo se consideran **dependencias funcionales no triviales** (A → B, donde B no está en A).
+
+---
+
+### Implementacion
+```python
+def is_relvar_in_bcnf(relvar) -> bool:
+    """
+    Verifica si una relación (relvar) está en Forma Normal de Boyce-Codd (BCNF).
+
+    Una relación está en BCNF si, para toda dependencia funcional no trivial A → B,
+    A es una superclave.
+
+    Args:
+        relvar: Objeto que representa una relación, con propiedades:
+            - heading: conjunto de atributos.
+            - functional_dependencies: conjunto de dependencias funcionales.
+
+    Returns:
+        bool: True si la relación está en BCNF, False en caso contrario.
+    """
+    heading = relvar.heading
+    fds = relvar.functional_dependencies
+
+    for fd in fds:
+        if not fd.rhs.issubset(fd.lhs):  # Es no trivial
+            if not is_superkey(fd.lhs, heading, fds):
+                return False
+    return True
+```
+
+### Ejemplos de uso
+
+```python
+from components import Attribute, FunctionalDependency, Relvar
+from algorithms import is_relvar_in_bcnf
+
+A = Attribute("A")
+B = Attribute("B")
+C = Attribute("C")
+
+fd1 = FunctionalDependency(lhs={A}, rhs={B})
+fd2 = FunctionalDependency(lhs={B}, rhs={C})
+
+heading = {A, B, C}
+fds = {fd1, fd2}
+relvar = Relvar(heading=heading, functional_dependencies=fds, multivalued_dependencies=set())
+
+# A no es superclave y A → B existe => no está en BCNF
+print(is_relvar_in_bcnf(relvar))  # Esperado: False
+
+# Relación simple sin violaciones a BCNF
+relvar2 = Relvar(
+    heading={A, B},
+    functional_dependencies={FunctionalDependency(lhs={A}, rhs={B})}
+)
+print(is_relvar_in_bcnf(relvar2))  # Esperado: True
+```
+
 
 
 
